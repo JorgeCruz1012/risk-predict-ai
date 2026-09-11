@@ -100,7 +100,10 @@ export interface ExecutorStats {
  * Evita contaminación temporal (data leakage).
  */
 export function executorStats(executor: string, reference: Date): ExecutorStats {
-  const ref = reference.getTime();
+  // Si la fecha consultada es posterior al histórico demo, se evalúa contra el
+  // último corte disponible para que la carga siga siendo representativa.
+  const datasetEnd = new Date(DEMO_TASKS[DEMO_TASKS.length - 1]!.createdOn).getTime();
+  const ref = Math.min(reference.getTime(), datasetEnd);
   const prior = DEMO_TASKS.filter(
     (t) => t.executingUser === executor && new Date(t.createdOn).getTime() < ref,
   );
